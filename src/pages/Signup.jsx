@@ -9,24 +9,20 @@ const Signup = () => {
         name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: 'USER' // Default role
     });
     const { signup } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.password !== formData.confirmPassword) {
-            return toast.error("Passwords don't match!");
+            return toast.error("Password tidak cocok!");
         }
         try {
-            signup({
-                id: Date.now(),
-                name: formData.name,
-                email: formData.email,
-                password: formData.password
-            });
-            toast.success('Registration successful! Please login.');
+            await signup(formData);
+            toast.success('Pendaftaran berhasil! Silakan login.');
             navigate('/login');
         } catch (error) {
             toast.error(error.message);
@@ -44,13 +40,13 @@ const Signup = () => {
                     <div className="inline-flex items-center justify-center p-3 bg-white/20 rounded-2xl mb-4">
                         <UtensilsCrossed size={32} />
                     </div>
-                    <h2 className="text-3xl font-bold">Create Account</h2>
-                    <p className="opacity-80">Join FoodKart and enjoy great food</p>
+                    <h2 className="text-3xl font-bold">Daftar Akun</h2>
+                    <p className="opacity-80">Bergabung dengan FoodKart sekarang</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                <form onSubmit={handleSubmit} className="p-8 space-y-4">
                     <div className="space-y-1">
-                        <label className="text-sm font-semibold text-gray-700 ml-1">Full Name</label>
+                        <label className="text-sm font-semibold text-gray-700 ml-1">Nama Lengkap</label>
                         <div className="relative group">
                             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
                             <input
@@ -58,7 +54,7 @@ const Signup = () => {
                                 name="name"
                                 required
                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                                placeholder="John Doe"
+                                placeholder="Nama Anda"
                                 value={formData.name}
                                 onChange={handleChange}
                             />
@@ -66,7 +62,7 @@ const Signup = () => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-semibold text-gray-700 ml-1">Email Address</label>
+                        <label className="text-sm font-semibold text-gray-700 ml-1">Email</label>
                         <div className="relative group">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
                             <input
@@ -74,11 +70,30 @@ const Signup = () => {
                                 name="email"
                                 required
                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                                placeholder="you@example.com"
+                                placeholder="email@contoh.com"
                                 value={formData.email}
                                 onChange={handleChange}
                             />
                         </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-2">
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, role: 'USER' })}
+                            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center space-y-1 ${formData.role === 'USER' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-400'}`}
+                        >
+                            <span className="text-xl">🍔</span>
+                            <span className="text-xs font-bold">Pembeli</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, role: 'RESTAURANT' })}
+                            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center space-y-1 ${formData.role === 'RESTAURANT' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 text-gray-400'}`}
+                        >
+                            <span className="text-xl">🏪</span>
+                            <span className="text-xs font-bold">Restoran</span>
+                        </button>
                     </div>
 
                     <div className="space-y-1">
@@ -98,7 +113,7 @@ const Signup = () => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-semibold text-gray-700 ml-1">Confirm Password</label>
+                        <label className="text-sm font-semibold text-gray-700 ml-1">Konfirmasi Password</label>
                         <div className="relative group">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
                             <input
@@ -115,14 +130,14 @@ const Signup = () => {
 
                     <button
                         type="submit"
-                        className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary/90 shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center space-x-2 mt-4"
+                        className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary/90 shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center space-x-2 mt-2"
                     >
                         <UserPlus size={20} />
-                        <span>Join Now</span>
+                        <span>Daftar Sekarang</span>
                     </button>
 
                     <p className="text-center text-gray-600">
-                        Already have an account?{' '}
+                        Sudah punya akun?{' '}
                         <Link to="/login" className="text-primary font-bold hover:underline">
                             Login
                         </Link>

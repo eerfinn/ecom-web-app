@@ -1,4 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase/config';
 
 const AuthContext = createContext();
 
@@ -7,36 +15,58 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            setUser(JSON.parse(savedUser));
-        }
-        setLoading(false);
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                // Ambil data tambahan user (role, name) dari Firestore
+                const docRef = doc(db, "users", currentUser.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    setUser({ uid: currentUser.uid, email: currentUser.email, ...docSnap.data() });
+                } else {
+                    setUser(currentUser);
+                }
+            } else {
+                setUser(null);
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
-    const signup = (userData) => {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        if (users.find(u => u.email === userData.email)) {
-            throw new Error('User already exists');
-        }
-        users.push(userData);
-        localStorage.setItem('users', JSON.stringify(users));
+    const signup = async (userData) => {
+        const { email, password, name, role } = userData;
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUser = userCredential.user;
+
+        // Simpan data tambahan ke Firestore
+        await setDoc(doc(db, "users", newUser.uid), {
+            name,
+            role,
+            email,
+            createdAt: new Date().toISOString()
+        });
+
+        return newUser;
     };
 
-    const login = (email, password) => {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const userFound = users.find(u => u.email === email && u.password === password);
-        if (!userFound) {
-            throw new Error('Invalid email or password');
+    const login = async (email, password) => {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const fbUser = userCredential.user;
+
+        // Fetch role and extra data for immediate use after login
+        const docRef = doc(db, "users", fbUser.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return { uid: fbUser.uid, email: fbUser.email, ...docSnap.data() };
         }
-        setUser(userFound);
-        localStorage.setItem('currentUser', JSON.stringify(userFound));
-        return userFound;
+        return fbUser;
     };
 
     const logout = () => {
-        setUser(null);
-        localStorage.removeItem('currentUser');
+        return signOut(auth);
     };
 
     return (

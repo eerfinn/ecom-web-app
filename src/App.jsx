@@ -13,6 +13,8 @@ import RestaurantMenu from './pages/RestaurantMenu';
 import Cart from './pages/Cart';
 import Payment from './pages/Payment';
 import OrderSuccess from './pages/OrderSuccess';
+import RestaurantDashboard from './pages/RestaurantDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -50,6 +52,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <OrderSuccess />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/restaurant-dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['RESTAURANT']}>
+                    <RestaurantDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { collection, query, onSnapshot, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -18,18 +19,28 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'users', 'restaurants'
 
     useEffect(() => {
+        const handleError = (error) => {
+            console.error("Firestore snapshot error:", error);
+            setLoading(false);
+            if (error.code === 'permission-denied') {
+                toast.error("Akses ditolak. Pastikan role Anda sudah diatur menjadi ADMIN di Database.");
+            }
+        };
+
         const unsubRes = onSnapshot(collection(db, "restaurants"), (snap) => {
             setRestaurants(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        });
+        }, handleError);
 
-        const unsubOrders = onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snap) => {
-            setOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        });
+        const unsubOrders = onSnapshot(collection(db, "orders"), (snap) => {
+            const fetchedOrders = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            fetchedOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setOrders(fetchedOrders);
+        }, handleError);
 
         const unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
             setUsers(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             setLoading(false);
-        });
+        }, handleError);
 
         return () => {
             unsubRes();
@@ -62,7 +73,7 @@ const AdminDashboard = () => {
         }
     };
 
-    const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+    const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -98,8 +109,8 @@ const AdminDashboard = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id
-                                        ? 'bg-white text-indigo-600 shadow-md'
-                                        : 'text-gray-500 hover:text-indigo-400'
+                                    ? 'bg-white text-indigo-600 shadow-md'
+                                    : 'text-gray-500 hover:text-indigo-400'
                                     }`}
                             >
                                 {tab.icon}
@@ -226,7 +237,7 @@ const AdminDashboard = () => {
                                             </td>
                                             <td className="px-10 py-8">
                                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${u.role === 'ADMIN' ? 'bg-indigo-600 text-white' :
-                                                        u.role === 'RESTAURANT' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
+                                                    u.role === 'RESTAURANT' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
                                                     }`}>
                                                     {u.role}
                                                 </span>

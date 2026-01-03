@@ -38,12 +38,15 @@ const RestaurantDashboard = () => {
                 // 2. Fetch Orders for this restaurant
                 const qOrders = query(
                     collection(db, "orders"),
-                    where("restaurantId", "==", docData.id),
-                    orderBy("createdAt", "desc")
+                    where("restaurantId", "==", docData.id)
                 );
                 const unsubOrders = onSnapshot(qOrders, (orderSnap) => {
                     const orderList = orderSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    // Use client-side sorting to avoid missing index error
+                    orderList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     setOrders(orderList);
+                }, (error) => {
+                    console.error("Orders sync error:", error);
                 });
 
                 setLoading(false);
@@ -51,6 +54,9 @@ const RestaurantDashboard = () => {
             } else {
                 setLoading(false);
             }
+        }, (error) => {
+            console.error("Restaurant sync error:", error);
+            setLoading(false);
         });
 
         return () => unsubRes();
@@ -242,8 +248,8 @@ const RestaurantDashboard = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center space-x-2 px-8 py-4 rounded-2xl whitespace-nowrap text-sm font-black transition-all tracking-tight uppercase ${activeTab === tab.id
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
-                                    : 'text-gray-400 hover:bg-gray-50'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
+                                : 'text-gray-400 hover:bg-gray-50'
                                 }`}
                         >
                             {tab.icon}
@@ -291,7 +297,7 @@ const RestaurantDashboard = () => {
                                             </div>
                                         </div>
                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'PENDING' ? 'bg-orange-100 text-orange-600' :
-                                                order.status === 'PREPARING' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                                            order.status === 'PREPARING' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
                                             }`}>
                                             {order.status}
                                         </span>

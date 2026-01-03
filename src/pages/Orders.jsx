@@ -15,12 +15,17 @@ const Orders = () => {
 
         const q = query(
             collection(db, "orders"),
-            where("userId", "==", user.uid),
-            orderBy("createdAt", "desc")
+            where("userId", "==", user.uid)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            const fetchedOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // Sort in memory to avoid needing a manual index in Firebase
+            fetchedOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setOrders(fetchedOrders);
+            setLoading(false);
+        }, (error) => {
+            console.error("Orders Error:", error);
             setLoading(false);
         });
 
@@ -64,7 +69,7 @@ const Orders = () => {
                                             <div className="text-right">
                                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status</p>
                                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'PENDING' ? 'bg-orange-100 text-orange-600' :
-                                                        order.status === 'PREPARING' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                                                    order.status === 'PREPARING' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
                                                     }`}>
                                                     {order.status === 'PENDING' ? 'Menunggu Konfirmasi' :
                                                         order.status === 'PREPARING' ? 'Sedang Disiapkan' : 'Selesai'}

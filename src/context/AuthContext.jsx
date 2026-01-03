@@ -16,34 +16,40 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                // Ambil data tambahan user (role, name) dari Firestore
-                const docRef = doc(db, "users", currentUser.uid);
-                const docSnap = await getDoc(docRef);
+            try {
+                if (currentUser) {
+                    // Ambil data tambahan user (role, name) dari Firestore
+                    const docRef = doc(db, "users", currentUser.uid);
+                    const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    setUser({ uid: currentUser.uid, email: currentUser.email, ...docSnap.data() });
+                    if (docSnap.exists()) {
+                        setUser({ uid: currentUser.uid, email: currentUser.email, ...docSnap.data() });
+                    } else {
+                        setUser({ uid: currentUser.uid, email: currentUser.email, role: 'USER' });
+                    }
                 } else {
-                    setUser(currentUser);
+                    setUser(null);
                 }
-            } else {
+            } catch (error) {
+                console.error("Auth helper error:", error);
                 setUser(null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         });
 
         return () => unsubscribe();
     }, []);
 
     const signup = async (userData) => {
-        const { email, password, name, role } = userData;
+        const { email, password, name } = userData;
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const newUser = userCredential.user;
 
-        // Simpan data tambahan ke Firestore
+        // Force 'USER' role on signup for security
         await setDoc(doc(db, "users", newUser.uid), {
             name,
-            role,
+            role: 'USER',
             email,
             createdAt: new Date().toISOString()
         });

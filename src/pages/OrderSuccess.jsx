@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle2, ShoppingBag, Home, ChevronRight } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { CheckCircle2, ShoppingBag, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const OrderSuccess = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { formatCurrency } = useCart();
     const total = location.state?.total || 0;
 
     useEffect(() => {
@@ -32,7 +34,7 @@ const OrderSuccess = () => {
                     transition={{ delay: 0.2 }}
                     className="text-4xl font-black text-gray-800 mb-4"
                 >
-                    Order Placed!
+                    Pesanan Berhasil!
                 </motion.h1>
 
                 <motion.p
@@ -41,7 +43,7 @@ const OrderSuccess = () => {
                     transition={{ delay: 0.3 }}
                     className="text-gray-500 mb-10 text-lg"
                 >
-                    Thank you for your order. Your food will be delivered to you in 30 minutes!
+                    Terima kasih atas pesanan Anda. Makanan Anda akan sampai dalam waktu 30 menit!
                 </motion.p>
 
                 <motion.div
@@ -51,12 +53,12 @@ const OrderSuccess = () => {
                     className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 mb-10"
                 >
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-50">
-                        <span className="text-gray-500 font-medium">Order Total</span>
-                        <span className="text-2xl font-black text-primary">₹{total.toFixed(2)}</span>
+                        <span className="text-gray-500 font-medium">Total Pesanan</span>
+                        <span className="text-2xl font-black text-primary">{formatCurrency(total)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                         <span className="text-gray-500 font-medium">Status</span>
-                        <span className="px-4 py-1 bg-green-100 text-green-600 font-bold rounded-full text-sm">Confirmed</span>
+                        <span className="px-4 py-1 bg-green-100 text-green-600 font-bold rounded-full text-sm">Dikonfirmasi</span>
                     </div>
                 </motion.div>
 
@@ -71,14 +73,14 @@ const OrderSuccess = () => {
                         className="flex-1 px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-900 transition-all flex items-center justify-center space-x-2"
                     >
                         <Home size={20} />
-                        <span>Go to Home</span>
+                        <span>Beranda</span>
                     </Link>
                     <Link
                         to="/"
                         className="flex-1 px-8 py-4 border-2 border-primary text-primary font-bold rounded-2xl hover:bg-primary/5 transition-all flex items-center justify-center space-x-2"
                     >
                         <ShoppingBag size={20} />
-                        <span>Order More</span>
+                        <span>Pesan Lagi</span>
                     </Link>
                 </motion.div>
             </div>

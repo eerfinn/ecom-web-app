@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, LogOut, User, UtensilsCrossed, Utensils, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, LogOut, User as UserIcon, UtensilsCrossed, Utensils, ShieldCheck, Package } from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -52,18 +52,24 @@ const Navbar = () => {
 
                     {user ? (
                         <div className="flex items-center space-x-2 pl-2 border-l border-gray-100">
-                            <div className="flex items-center space-x-3 bg-gray-50 p-1.5 pr-4 rounded-2xl border border-gray-100">
-                                <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
-                                    <User size={20} className="text-white" />
+                            <Link to="/orders" className="p-3 text-gray-500 hover:text-primary transition-colors">
+                                <Package size={20} />
+                            </Link>
+                            <Link to="/profile" className="flex items-center space-x-3 bg-gray-50 p-1.5 pr-4 rounded-2xl border border-gray-100 hover:bg-gray-100 transition-all">
+                                <div className="w-9 h-9 bg-white shadow-sm flex items-center justify-center rounded-xl text-primary font-bold">
+                                    <UserIcon size={18} />
                                 </div>
-                                <span className="hidden md:inline font-bold text-sm text-gray-700">{user.name}</span>
-                            </div>
+                                <div className="hidden md:block">
+                                    <p className="text-[10px] font-black leading-none text-gray-400 mb-0.5 uppercase tracking-tighter">Halo,</p>
+                                    <p className="text-sm font-black text-gray-700 leading-none">{user.name?.split(' ')[0]}</p>
+                                </div>
+                            </Link>
                             <button
                                 onClick={handleLogout}
-                                className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-100 transition-all shadow-sm active:scale-90"
-                                title="Logout"
+                                className="p-3 text-gray-400 hover:text-red-500 transition-colors"
+                                title="Keluar"
                             >
-                                <LogOut size={20} strokeWidth={2.5} />
+                                <LogOut size={20} />
                             </button>
                         </div>
                     ) : (

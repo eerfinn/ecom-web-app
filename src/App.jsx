@@ -15,6 +15,8 @@ import Payment from './pages/Payment';
 import OrderSuccess from './pages/OrderSuccess';
 import RestaurantDashboard from './pages/RestaurantDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
+import Orders from './pages/Orders';
 
 function App() {
   return (
@@ -36,6 +38,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Cart />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <Orders />
                   </ProtectedRoute>
                 }
               />

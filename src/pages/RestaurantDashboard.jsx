@@ -7,6 +7,7 @@ import {
     TrendingUp, Users, Clock, CheckCircle, Package,
     ChevronRight, Store, X, Image as ImageIcon
 } from 'lucide-react';
+import { uploadImage } from '../utils/upload';
 import toast from 'react-hot-toast';
 
 const RestaurantDashboard = () => {
@@ -23,6 +24,11 @@ const RestaurantDashboard = () => {
     // Form states
     const [newItem, setNewItem] = useState({ name: '', price: '', category: '', image: '' });
     const [newStore, setNewStore] = useState({ name: '', cuisine: '', image: '', deliveryTime: '20-30 min' });
+
+    // File states
+    const [storeImageFile, setStoreImageFile] = useState(null);
+    const [itemImageFile, setItemImageFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -64,9 +70,20 @@ const RestaurantDashboard = () => {
 
     const handleCreateStore = async (e) => {
         e.preventDefault();
+        setIsUploading(true);
         try {
+            let imageUrl = newStore.image;
+
+            // Upload gambar jika ada file yang dipilih
+            if (storeImageFile) {
+                toast.loading("Mengupload logo restoran...", { id: 'upload' });
+                imageUrl = await uploadImage(storeImageFile, 'restaurants');
+                toast.success("Gambar berhasil diupload!", { id: 'upload' });
+            }
+
             await addDoc(collection(db, "restaurants"), {
                 ...newStore,
+                image: imageUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500',
                 ownerId: user.uid,
                 ownerEmail: user.email,
                 rating: 5.0,
@@ -75,22 +92,44 @@ const RestaurantDashboard = () => {
             });
             toast.success("Restoran berhasil didaftarkan!");
             setIsCreatingStore(false);
+            setStoreImageFile(null);
         } catch (error) {
             toast.error("Gagal mendaftarkan restoran");
+        } finally {
+            setIsUploading(false);
         }
     };
 
     const handleAddItem = async (e) => {
         e.preventDefault();
+        setIsUploading(true);
         try {
-            const updatedMenu = [...(myRestaurant.menu || []), { ...newItem, id: Date.now(), price: Number(newItem.price) }];
+            let imageUrl = newItem.image;
+
+            // Upload gambar jika ada file yang dipilih
+            if (itemImageFile) {
+                toast.loading("Mengupload gambar menu...", { id: 'upload' });
+                imageUrl = await uploadImage(itemImageFile, 'menus');
+                toast.success("Gambar menu terupload!", { id: 'upload' });
+            }
+
+            const updatedMenu = [...(myRestaurant.menu || []), {
+                ...newItem,
+                id: Date.now(),
+                price: Number(newItem.price),
+                image: imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'
+            }];
+
             const resRef = doc(db, "restaurants", myRestaurant.id);
             await updateDoc(resRef, { menu: updatedMenu });
             toast.success("Menu berhasil ditambahkan!");
             setNewItem({ name: '', price: '', category: '', image: '' });
+            setItemImageFile(null);
             setIsAddingItem(false);
         } catch (error) {
             toast.error("Gagal menambah menu");
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -162,16 +201,33 @@ const RestaurantDashboard = () => {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-black text-gray-700 ml-1 uppercase tracking-wider">URL Banner/Foto Toko (Unsplash)</label>
-                            <div className="relative">
-                                <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            <label className="text-sm font-black text-gray-700 ml-1 uppercase tracking-wider">Logo / Foto Banner Toko</label>
+                            <label className="relative flex flex-col items-center justify-center w-full h-32 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[32px] cursor-pointer hover:bg-gray-100 hover:border-primary/50 transition-all group overflow-hidden">
+                                {storeImageFile ? (
+                                    <div className="flex flex-col items-center">
+                                        <CheckCircle className="text-green-500 mb-2" size={24} />
+                                        <p className="text-xs font-bold text-gray-600 truncate max-w-[200px]">{storeImageFile.name}</p>
+                                        <p className="text-[10px] text-gray-400 mt-1">Klik untuk mengganti</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center">
+                                        <ImageIcon className="text-gray-400 group-hover:text-primary transition-colors mb-2" size={32} />
+                                        <p className="text-xs font-bold text-gray-500">Pilih atau Seret Gambar</p>
+                                        <p className="text-[10px] text-gray-400 mt-1">Maksimal 2MB</p>
+                                    </div>
+                                )}
                                 <input
-                                    type="url" required placeholder="https://images.unsplash.com/..."
-                                    className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all font-medium"
-                                    value={newStore.image}
-                                    onChange={(e) => setNewStore({ ...newStore, image: e.target.value })}
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => setStoreImageFile(e.target.files[0])}
                                 />
-                            </div>
+                            </label>
+                            {/* Input URL disembunyikan tapi tetap ada sebagai fallback */}
+                            <input
+                                type="hidden"
+                                value={newStore.image}
+                            />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-black text-gray-700 ml-1 uppercase tracking-wider">Estimasi Pengantaran</label>
@@ -186,8 +242,13 @@ const RestaurantDashboard = () => {
                                 <option>45-60 min</option>
                             </select>
                         </div>
-                        <button type="submit" className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl hover:shadow-primary/30 transition-all text-xl mt-4">
-                            Simpan & Buka Toko
+                        <button
+                            type="submit"
+                            disabled={isUploading}
+                            className={`w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl transition-all text-xl mt-4 flex items-center justify-center space-x-3 ${isUploading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-primary/30'}`}
+                        >
+                            {isUploading && <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                            <span>{isUploading ? 'Sedang Memproses...' : 'Simpan & Buka Toko'}</span>
                         </button>
                     </form>
                 </div>
@@ -483,18 +544,31 @@ const RestaurantDashboard = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Link Gambar (Unsplash)</label>
-                                    <input
-                                        type="text" required
-                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all font-medium text-xs"
-                                        placeholder="https://..."
-                                        value={newItem.image}
-                                        onChange={(e) => setNewItem({ ...newItem, image: e.target.value })}
-                                    />
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Foto Menu</label>
+                                    <label className="relative flex items-center space-x-4 p-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all group">
+                                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-gray-400 group-hover:text-primary shadow-sm border border-gray-100 transition-all">
+                                            {itemImageFile ? <CheckCircle className="text-green-500" size={24} /> : <ImageIcon size={24} />}
+                                        </div>
+                                        <div className="flex-1 overflow-hidden">
+                                            <p className="text-xs font-black text-gray-700 truncate">{itemImageFile ? itemImageFile.name : 'Pilih Gambar Menu'}</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Klik untuk mencari file</p>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={(e) => setItemImageFile(e.target.files[0])}
+                                        />
+                                    </label>
                                 </div>
                             </div>
-                            <button type="submit" className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl hover:shadow-primary/30 transition-all uppercase text-xs tracking-[2px] mt-4">
-                                Simpan Hidangan
+                            <button
+                                type="submit"
+                                disabled={isUploading}
+                                className={`w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl transition-all uppercase text-xs tracking-[2px] mt-4 flex items-center justify-center space-x-3 ${isUploading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-primary/30'}`}
+                            >
+                                {isUploading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                                <span>{isUploading ? 'Menyimpan...' : 'Simpan Hidangan'}</span>
                             </button>
                         </form>
                     </div>

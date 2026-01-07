@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { ShoppingCart, LogOut, User as UserIcon, UtensilsCrossed, Utensils, ShieldCheck, Package } from 'lucide-react';
@@ -8,6 +7,12 @@ const Navbar = () => {
     const { user, logout } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Sembunyikan Navbar di halaman Auth
+    if (location.pathname === '/login' || location.pathname === '/signup') {
+        return null;
+    }
 
     const handleLogout = () => {
         logout();

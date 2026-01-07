@@ -3,7 +3,8 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -23,7 +24,16 @@ export const AuthProvider = ({ children }) => {
                     const docSnap = await getDoc(docRef);
 
                     if (docSnap.exists()) {
-                        setUser({ uid: currentUser.uid, email: currentUser.email, ...docSnap.data() });
+                        const firestoreData = docSnap.data();
+
+                        // SINKRONISASI EMAIL: Jika email di Auth berbeda dengan Firestore (misal setelah ganti email)
+                        if (currentUser.email !== firestoreData.email) {
+                            const { updateDoc } = await import('firebase/firestore');
+                            await updateDoc(docRef, { email: currentUser.email });
+                            firestoreData.email = currentUser.email;
+                        }
+
+                        setUser({ uid: currentUser.uid, email: currentUser.email, ...firestoreData });
                     } else {
                         setUser({ uid: currentUser.uid, email: currentUser.email, role: 'USER' });
                     }
@@ -75,8 +85,12 @@ export const AuthProvider = ({ children }) => {
         return signOut(auth);
     };
 
+    const resetPassword = (email) => {
+        return sendPasswordResetEmail(auth, email);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, signup, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, signup, login, logout, resetPassword, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

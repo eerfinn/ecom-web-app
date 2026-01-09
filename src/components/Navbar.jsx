@@ -9,7 +9,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Sembunyikan Navbar di halaman Auth
+    // Hide Navbar on Auth pages
     if (location.pathname === '/login' || location.pathname === '/signup') {
         return null;
     }
@@ -65,7 +65,7 @@ const Navbar = () => {
                                     <UserIcon size={18} />
                                 </div>
                                 <div className="hidden md:block">
-                                    <p className="text-[10px] font-black leading-none text-gray-400 mb-0.5 uppercase tracking-tighter">Halo,</p>
+                                    <p className="text-[10px] font-black leading-none text-gray-400 mb-0.5 uppercase tracking-tighter">Hello,</p>
                                     <p className="text-sm font-black text-gray-700 leading-none">{user.name?.split(' ')[0]}</p>
                                 </div>
                             </Link>
@@ -89,7 +89,7 @@ const Navbar = () => {
                                 to="/signup"
                                 className="px-8 py-3 bg-primary text-white font-black rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 text-sm tracking-wide"
                             >
-                                Daftar
+                                Sign Up
                             </Link>
                         </div>
                     )}

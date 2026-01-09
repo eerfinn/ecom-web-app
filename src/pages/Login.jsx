@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, LogIn, UtensilsCrossed, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, LogIn, UtensilsCrossed, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
     const [resetEmail, setResetEmail] = useState('');
@@ -21,7 +22,7 @@ const Login = () => {
         setLoading(true);
         try {
             const user = await login(email, password);
-            toast.success('Selamat Datang Kembali!');
+            toast.success('Welcome back! Great to see you again.');
 
             if (user?.role === 'ADMIN') {
                 navigate('/admin', { replace: true });
@@ -34,9 +35,9 @@ const Login = () => {
         } catch (error) {
             console.error(error);
             if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                toast.error("Email atau password Anda salah.");
+                toast.error("Incorrect email or password. Please try again.");
             } else {
-                toast.error("Gagal masuk. Silakan coba lagi nanti.");
+                toast.error("An error occurred during sign in. Please try again later.");
             }
         } finally {
             setLoading(false);
@@ -48,10 +49,10 @@ const Login = () => {
         setResetLoading(true);
         try {
             await resetPassword(resetEmail);
-            toast.success("Instruksi reset password telah dikirim ke email Anda.");
+            toast.success("Password reset instructions have been sent to your email.");
             setShowResetModal(false);
         } catch (error) {
-            toast.error("Gagal mengirim email reset. Pastikan email terdaftar.");
+            toast.error("Failed to send reset email. Please ensure the email is registered.");
         } finally {
             setResetLoading(false);
         }
@@ -65,7 +66,7 @@ const Login = () => {
                     <div className="relative z-10">
                         <Link to="/" className="inline-flex items-center space-x-2 text-white/50 hover:text-white transition-all group mb-20">
                             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-[11px] font-bold uppercase tracking-[2px]">Kembali</span>
+                            <span className="text-[11px] font-bold uppercase tracking-[2px]">Back to Home</span>
                         </Link>
 
                         <div className="space-y-4">
@@ -126,16 +127,23 @@ const Login = () => {
                                         Forgot?
                                     </button>
                                 </div>
-                                <div className="relative group">
-                                    <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={18} />
+                                <div className="relative group/pass">
+                                    <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within/pass:text-primary transition-colors" size={18} />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         required
-                                        className="w-full pl-8 pr-4 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
+                                        className="w-full pl-8 pr-10 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
                                         placeholder="••••••••"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-300 hover:text-primary transition-colors pr-1"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
 
@@ -155,13 +163,19 @@ const Login = () => {
                             </button>
                         </form>
 
-                        <div className="mt-12 text-center">
-                            <p className="text-gray-400 text-sm font-medium mb-4">Don't have an account?</p>
+                        <div className="mt-16 text-center">
+                            <div className="relative flex items-center justify-center mb-8">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-100"></div>
+                                </div>
+                                <span className="relative px-4 bg-white text-[11px] font-bold text-gray-300 uppercase tracking-widest leading-none">New to FoodKart?</span>
+                            </div>
                             <Link
                                 to="/signup"
-                                className="text-gray-950 font-black hover:text-primary transition-colors text-sm underline underline-offset-4"
+                                className="group relative inline-flex items-center justify-center px-10 py-4 font-black transition-all duration-300 ease-in-out border-2 border-gray-950 rounded-xl hover:bg-gray-950 hover:text-white"
                             >
-                                Register Now
+                                <span className="relative text-xs tracking-[3px] uppercase">Join Our Community</span>
+                                <ArrowLeft size={16} className="ml-3 group-hover:translate-x-1 transition-transform rotate-180" />
                             </Link>
                         </div>
                     </div>

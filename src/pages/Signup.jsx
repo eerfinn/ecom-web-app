@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, User, UserPlus, UtensilsCrossed, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, UtensilsCrossed, ArrowLeft, Eye, EyeOff, LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Signup = () => {
@@ -12,6 +12,8 @@ const Signup = () => {
         confirmPassword: '',
         role: 'USER'
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { signup } = useAuth();
     const navigate = useNavigate();
@@ -19,23 +21,23 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.password !== formData.confirmPassword) {
-            return toast.error("Konfirmasi password tidak cocok!");
+            return toast.error("Passwords do not match. Please check again.");
         }
         if (formData.password.length < 6) {
-            return toast.error("Password minimal 6 karakter.");
+            return toast.error("Password must be at least 6 characters long.");
         }
 
         setLoading(true);
         try {
             await signup(formData);
-            toast.success('Akun Anda berhasil dibuat! Silakan masuk.');
+            toast.success('Your account has been created successfully! Please sign in.');
             navigate('/login');
         } catch (error) {
             console.error(error);
             if (error.code === 'auth/email-already-in-use') {
-                toast.error("Email sudah terdaftar. Silakan gunakan email lain.");
+                toast.error("This email is already registered. Please use a different one.");
             } else {
-                toast.error("Gagal mendaftar. Silakan coba lagi.");
+                toast.error("An error occurred during sign up. Please try again.");
             }
         } finally {
             setLoading(false);
@@ -54,7 +56,7 @@ const Signup = () => {
                     <div className="relative z-10">
                         <Link to="/" className="inline-flex items-center space-x-2 text-white/50 hover:text-white transition-all group mb-20">
                             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-[11px] font-bold uppercase tracking-[2px]">Kembali</span>
+                            <span className="text-[11px] font-bold uppercase tracking-[2px]">Back to Home</span>
                         </Link>
 
                         <div className="space-y-4">
@@ -149,32 +151,46 @@ const Signup = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px] ml-1">Password</label>
-                                    <div className="relative group">
-                                        <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={16} />
+                                    <div className="relative group/pass">
+                                        <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within/pass:text-primary transition-colors" size={16} />
                                         <input
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             name="password"
                                             required
-                                            className="w-full pl-7 pr-4 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
+                                            className="w-full pl-7 pr-8 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
                                             placeholder="••••••••"
                                             value={formData.password}
                                             onChange={handleChange}
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-300 hover:text-primary transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px] ml-1">Confirm</label>
-                                    <div className="relative group">
-                                        <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors" size={16} />
+                                    <div className="relative group/conf">
+                                        <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within/conf:text-primary transition-colors" size={16} />
                                         <input
-                                            type="password"
+                                            type={showConfirmPassword ? "text" : "password"}
                                             name="confirmPassword"
                                             required
-                                            className="w-full pl-7 pr-4 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
+                                            className="w-full pl-7 pr-8 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
                                             placeholder="••••••••"
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-300 hover:text-primary transition-colors"
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -195,13 +211,19 @@ const Signup = () => {
                             </button>
                         </form>
 
-                        <div className="mt-12 text-center">
-                            <p className="text-gray-400 text-sm font-medium mb-4">Already have an account?</p>
+                        <div className="mt-16 text-center">
+                            <div className="relative flex items-center justify-center mb-8">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-100"></div>
+                                </div>
+                                <span className="relative px-4 bg-white text-[11px] font-bold text-gray-300 uppercase tracking-widest leading-none">Already a Member?</span>
+                            </div>
                             <Link
                                 to="/login"
-                                className="text-gray-950 font-black hover:text-primary transition-colors text-sm underline underline-offset-4"
+                                className="group relative inline-flex items-center justify-center px-10 py-4 font-black transition-all duration-300 ease-in-out border-2 border-gray-950 rounded-xl hover:bg-gray-950 hover:text-white"
                             >
-                                Login Here
+                                <span className="relative text-xs tracking-[3px] uppercase">Sign In Instead</span>
+                                <LogIn size={16} className="ml-3 group-hover:-translate-x-1 transition-transform" />
                             </Link>
                         </div>
                     </div>

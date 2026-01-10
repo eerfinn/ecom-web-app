@@ -56,11 +56,13 @@ export const AuthProvider = ({ children }) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const newUser = userCredential.user;
 
-        // Force 'USER' role on signup for security
+        // Create user profile in Firestore with all metadata
         await setDoc(doc(db, "users", newUser.uid), {
             name,
-            role: 'USER',
             email,
+            role: userData.role || 'USER',
+            location: userData.location || null,
+            vehicleNumber: userData.vehicleNumber || null,
             createdAt: new Date().toISOString()
         });
 

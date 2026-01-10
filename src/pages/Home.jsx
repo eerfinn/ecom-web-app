@@ -13,7 +13,7 @@ const Home = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [offers, setOffers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeCategory, setActiveCategory] = useState('Semua');
+    const [activeCategory, setActiveCategory] = useState('All');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const Home = () => {
     };
 
     const categories = [
-        { name: 'Semua', icon: '🍽️' },
+        { name: 'All', icon: '🍽️' },
         { name: 'Burgers', icon: '🍔' },
         { name: 'Pizza', icon: '🍕' },
         { name: 'Indian', icon: '🍛' },
@@ -59,7 +59,7 @@ const Home = () => {
         const nameMatch = res.name?.toLowerCase().includes(searchTerm.toLowerCase());
         const cuisineMatch = res.cuisine?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSearch = nameMatch || cuisineMatch;
-        const matchesCategory = activeCategory === 'Semua' || res.cuisine?.includes(activeCategory);
+        const matchesCategory = activeCategory === 'All' || res.cuisine?.includes(activeCategory);
         return matchesSearch && matchesCategory;
     });
 
@@ -91,8 +91,8 @@ const Home = () => {
                             animate={{ y: 0, opacity: 1 }}
                             className="text-5xl md:text-7xl font-black text-white mb-6 leading-[1.1]"
                         >
-                            Makan Enak <br />
-                            Gak Pake <span className="text-primary italic animate-pulse">Ribet</span>
+                            Malang's <br />
+                            Favorite <span className="text-primary italic animate-pulse">Flavors</span>
                         </motion.h1>
                         <motion.p
                             initial={{ y: 20, opacity: 0 }}
@@ -100,7 +100,7 @@ const Home = () => {
                             transition={{ delay: 0.1 }}
                             className="text-xl text-white/80 mb-8 max-w-lg"
                         >
-                            Temukan ribuan hidangan lezat dari restoran favoritmu dan nikmati gratis ongkir ke seluruh penjuru kota!
+                            Discover thousands of delicious dishes from your favorite local restaurants in Malang.
                         </motion.p>
 
                         <motion.div
@@ -114,7 +114,7 @@ const Home = () => {
                             </div>
                             <input
                                 type="text"
-                                placeholder="Cari soto, burger, atau sushi..."
+                                placeholder="Search soto, burger, or sushi in Malang..."
                                 className="w-full pl-14 pr-6 py-6 bg-white outline-none text-gray-700 transition-all text-lg font-medium"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -158,8 +158,8 @@ const Home = () => {
             {!searchTerm && (
                 <section className="container mx-auto px-4 mb-16">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-black text-gray-800 tracking-tight">Promo Spesial Untukmu 🎁</h2>
-                        <button className="text-primary font-bold text-sm hover:underline">Lihat Semua</button>
+                        <h2 className="text-2xl font-black text-gray-800 tracking-tight">Special Offers for You 🎁</h2>
+                        <button className="text-primary font-bold text-sm hover:underline">View All</button>
                     </div>
                     <div className="flex overflow-x-auto space-x-6 pb-6 no-scrollbar">
                         {offers.map((offer, i) => {
@@ -177,9 +177,9 @@ const Home = () => {
                                         </div>
                                         <div className="flex flex-col space-y-2 items-start">
                                             <div className="bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm border border-white/30">
-                                                <p className="text-xs font-bold font-mono tracking-tighter uppercase">{offer.type === 'percentage' ? `${offer.discount}% OFF` : `Potongan ${offer.discount}`}</p>
+                                                <p className="text-xs font-bold font-mono tracking-tighter uppercase">{offer.type === 'percentage' ? `${offer.discount}% OFF` : `${offer.discount} OFF`}</p>
                                             </div>
-                                            <button className="text-[10px] font-black bg-white text-gray-900 px-4 py-2 rounded-full transition-transform active:scale-95 uppercase tracking-tighter">AMBIL PROMO</button>
+                                            <button className="text-[10px] font-black bg-white text-gray-900 px-4 py-2 rounded-full transition-transform active:scale-95 uppercase tracking-tighter">CLAIM PROMO</button>
                                         </div>
                                     </div>
                                     <div className="w-1/3 relative">
@@ -198,11 +198,11 @@ const Home = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
                     <div>
                         <h2 className="text-3xl md:text-4xl font-black text-gray-800 tracking-tight flex items-center">
-                            {searchTerm ? `Hasil pencarian untuk "${searchTerm}"` : 'Restoran Populer'}
+                            {searchTerm ? `Search results for "${searchTerm}"` : 'Popular in Malang'}
                             {!searchTerm && <span className="ml-3 px-3 py-1 bg-primary/10 text-primary text-[10px] rounded-full uppercase font-black tracking-widest border border-primary/20">🔥 HOT NOW</span>}
                         </h2>
-                        {activeCategory !== 'Semua' && (
-                            <p className="text-gray-500 mt-1 font-medium italic">Menampilkan masakan pilihan: {activeCategory}</p>
+                        {activeCategory !== 'All' && (
+                            <p className="text-gray-500 mt-1 font-medium italic">Showing cuisine: {activeCategory}</p>
                         )}
                     </div>
 
@@ -226,19 +226,42 @@ const Home = () => {
                 ) : (
                     <div className="text-center py-32 bg-white rounded-[40px] shadow-sm border-2 border-dashed border-gray-200">
                         <div className="text-6xl mb-4">🔍</div>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">Wah, hasil tidak ditemukan</h3>
-                        <p className="text-gray-500 font-medium">Coba cari dengan kata kunci lain atau pilih kategori berbeda.</p>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">No results found</h3>
+                        <p className="text-gray-500 font-medium">Try searching for something else or reset filters.</p>
                         <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8">
-                            <button onClick={() => { setSearchTerm(''); setActiveCategory('Semua'); }} className="px-8 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20">Reset Semua</button>
+                            <button onClick={() => { setSearchTerm(''); setActiveCategory('All'); }} className="px-8 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20">Reset Filters</button>
                             {restaurants.length === 0 && (
                                 <button onClick={handleMigration} className="px-8 py-3 bg-gray-900 text-white font-bold rounded-2xl shadow-lg flex items-center space-x-2">
                                     <Database size={18} />
-                                    <span>Impor Data Awal</span>
+                                    <span>Import Data</span>
                                 </button>
                             )}
                         </div>
                     </div>
                 )}
+            </section>
+
+            {/* Driver Recruitment Section */}
+            <section className="container mx-auto px-4 my-20">
+                <div className="bg-gray-950 rounded-[40px] p-8 md:p-16 relative overflow-hidden flex flex-col md:flex-row items-center justify-between text-white">
+                    <div className="relative z-10 md:w-1/2">
+                        <span className="bg-primary/20 text-primary px-4 py-2 rounded-full text-[10px] font-black tracking-[4px] uppercase mb-6 inline-block">Join our Fleet</span>
+                        <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">Deliver Flavors, <br />Earn with <span className="text-primary">Freedom</span>.</h2>
+                        <p className="text-white/60 text-lg mb-10 max-w-md">Become a FoodKart driver in Malang and enjoy flexible hours, great earnings, and a chance to explore the city.</p>
+                        <button className="px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-transform flex items-center space-x-3 group">
+                            <span className="uppercase tracking-[2px] text-xs">Start Your Journey</span>
+                            <Search size={18} className="rotate-90 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    </div>
+                    <div className="md:w-1/2 mt-12 md:mt-0 relative flex justify-center">
+                        <div className="absolute -inset-10 bg-primary/10 blur-[100px] rounded-full"></div>
+                        <img
+                            src="https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?w=800&q=80"
+                            alt="Driver"
+                            className="relative z-10 w-full max-w-sm rounded-[40px] rotate-3 shadow-2xl border-4 border-white/10"
+                        />
+                    </div>
+                </div>
             </section>
         </div>
     );

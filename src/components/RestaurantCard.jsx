@@ -17,7 +17,7 @@ const RestaurantCard = ({ restaurant }) => {
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
                         {restaurant.rating >= 4.5 && (
                             <div className="bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg flex items-center space-x-1 animate-pulse">
-                                <span>POPUER</span>
+                                <span>POPULAR</span>
                             </div>
                         )}
                         {restaurant.offer && (
@@ -50,7 +50,7 @@ const RestaurantCard = ({ restaurant }) => {
                             </div>
                         </div>
                         <div className="flex items-center space-x-1 text-primary group-hover:translate-x-1 transition-transform">
-                            <span className="font-black text-xs uppercase tracking-widest">Lihat Menu</span>
+                            <span className="font-black text-xs uppercase tracking-widest">View Menu</span>
                             <ChevronRight size={14} strokeWidth={3} />
                         </div>
                     </div>

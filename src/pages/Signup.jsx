@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, User, UserPlus, UtensilsCrossed, ArrowLeft, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, UtensilsCrossed, ArrowLeft, Eye, EyeOff, LogIn, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
+import MapPicker from '../components/MapPicker';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -10,7 +11,9 @@ const Signup = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'USER'
+        role: 'USER',
+        vehicleNumber: '',
+        location: { lat: -7.9839, lng: 112.6214 }
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -92,26 +95,30 @@ const Signup = () => {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px] ml-1">Account Type</label>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, role: 'USER' })}
-                                        className={`relative p-4 rounded-xl border transition-all flex items-center space-x-3 group ${formData.role === 'USER' ? 'border-primary bg-primary/5 text-primary shadow-sm' : 'border-gray-100 text-gray-400'}`}
+                                        className={`relative p-3 rounded-xl border transition-all flex flex-col items-center justify-center space-y-1 group ${formData.role === 'USER' ? 'border-primary bg-primary/5 text-primary shadow-sm' : 'border-gray-100 text-gray-400'}`}
                                     >
-                                        <span className="text-xl">🍔</span>
-                                        <div className="text-left">
-                                            <p className="text-[10px] font-black uppercase tracking-wider">Buyer</p>
-                                        </div>
+                                        <span className="text-lg">🍔</span>
+                                        <p className="text-[9px] font-black uppercase tracking-wider">Buyer</p>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, role: 'RESTAURANT' })}
-                                        className={`relative p-4 rounded-xl border transition-all flex items-center space-x-3 group ${formData.role === 'RESTAURANT' ? 'border-primary bg-primary/5 text-primary shadow-sm' : 'border-gray-100 text-gray-400'}`}
+                                        className={`relative p-3 rounded-xl border transition-all flex flex-col items-center justify-center space-y-1 group ${formData.role === 'RESTAURANT' ? 'border-primary bg-primary/5 text-primary shadow-sm' : 'border-gray-100 text-gray-400'}`}
                                     >
-                                        <span className="text-xl">🏪</span>
-                                        <div className="text-left">
-                                            <p className="text-[10px] font-black uppercase tracking-wider">Kitchen</p>
-                                        </div>
+                                        <span className="text-lg">🏪</span>
+                                        <p className="text-[9px] font-black uppercase tracking-wider">Kitchen</p>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, role: 'DRIVER' })}
+                                        className={`relative p-3 rounded-xl border transition-all flex flex-col items-center justify-center space-y-1 group ${formData.role === 'DRIVER' ? 'border-primary bg-primary/5 text-primary shadow-sm' : 'border-gray-100 text-gray-400'}`}
+                                    >
+                                        <span className="text-lg">🛵</span>
+                                        <p className="text-[9px] font-black uppercase tracking-wider">Driver</p>
                                     </button>
                                 </div>
                             </div>
@@ -146,6 +153,37 @@ const Signup = () => {
                                         onChange={handleChange}
                                     />
                                 </div>
+                            </div>
+
+                            {formData.role === 'DRIVER' && (
+                                <div className="space-y-2 animate-in slide-in-from-top duration-300">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px] ml-1">Vehicle Plate Number (N)</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary transition-colors">
+                                            <span className="text-xs font-bold">N</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="vehicleNumber"
+                                            required
+                                            className="w-full pl-6 pr-4 py-3 bg-transparent border-b border-gray-100 focus:border-primary outline-none transition-all font-semibold text-gray-800 text-sm"
+                                            placeholder="1234 ABC"
+                                            value={formData.vehicleNumber}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px] ml-1 flex items-center">
+                                    <MapPin size={12} className="mr-1 text-primary" /> Delivery / Base Location
+                                </label>
+                                <MapPicker
+                                    onLocationSelect={(loc) => setFormData(prev => ({ ...prev, location: loc }))}
+                                    initialPosition={[formData.location.lat, formData.location.lng]}
+                                />
+                                <p className="text-[9px] text-gray-400 italic">Please pin your location on the map of Malang City.</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

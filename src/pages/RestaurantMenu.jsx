@@ -180,7 +180,12 @@ const RestaurantMenu = () => {
                                         ) : (
                                             <button
                                                 onClick={() => {
-                                                    addToCart({ ...item, restaurantId: restaurant.id, restaurantName: restaurant.name });
+                                                    addToCart({
+                                                        ...item,
+                                                        restaurantId: restaurant.id,
+                                                        restaurantName: restaurant.name,
+                                                        restaurantLocation: restaurant.location || null
+                                                    });
                                                     toast.success(`${item.name} ditambahkan!`, {
                                                         style: { borderRadius: '20px', fontWeight: 'bold' }
                                                     });

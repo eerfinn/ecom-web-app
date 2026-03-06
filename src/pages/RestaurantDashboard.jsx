@@ -423,11 +423,23 @@ const RestaurantDashboard = () => {
                                                 )}
                                                 {order.status === 'PREPARING' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'DELIVERED')}
-                                                        className="flex-1 lg:flex-none px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-105 transition-all uppercase text-xs tracking-widest"
+                                                        onClick={() => updateOrderStatus(order.id, 'READY_FOR_PICKUP')}
+                                                        className="flex-1 lg:flex-none px-8 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all uppercase text-xs tracking-widest"
                                                     >
-                                                        Antar Sekarang
+                                                        Siap Diambil Kurir
                                                     </button>
+                                                )}
+                                                {order.status === 'READY_FOR_PICKUP' && (
+                                                    <div className="flex items-center space-x-2 text-indigo-500 bg-indigo-50 px-6 py-3 rounded-2xl border border-indigo-100 font-black text-xs uppercase tracking-widest">
+                                                        <Clock size={16} />
+                                                        <span>Menunggu Kurir</span>
+                                                    </div>
+                                                )}
+                                                {order.status === 'PICKED_UP' && (
+                                                    <div className="flex items-center space-x-2 text-blue-500 bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 font-black text-xs uppercase tracking-widest">
+                                                        <Package size={16} />
+                                                        <span>Dalam Pengiriman</span>
+                                                    </div>
                                                 )}
                                                 {order.status === 'DELIVERED' && (
                                                     <div className="flex items-center space-x-2 text-green-500 bg-green-50 px-6 py-3 rounded-2xl border border-green-100 font-black text-xs uppercase tracking-widest">

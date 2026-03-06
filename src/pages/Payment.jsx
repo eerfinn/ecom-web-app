@@ -41,6 +41,7 @@ const Payment = () => {
                         items: items,
                         totalAmount: subtotal,
                         status: 'PENDING',
+                        userLocation: user.location || null,
                         createdAt: new Date().toISOString()
                     });
                 });

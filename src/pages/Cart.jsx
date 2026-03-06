@@ -3,7 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingCart, ChevronLeft, Tag, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+import { calculateDistance, calculateShippingCost } from '../utils/location';
 const Cart = () => {
+    const { user } = useAuth();
     const {
         cart, removeFromCart, updateQuantity, cartTotal,
         appliedOffer, setAppliedOffer, discountAmount,
@@ -13,7 +16,27 @@ const Cart = () => {
     const navigate = useNavigate();
 
     const tax = cartTotal * 0.05; // 5% tax
-    const deliveryFee = (cartTotal > 150000 || (appliedOffer?.code === 'FREEDEL')) ? 0 : 15000;
+
+    // System: Location-based Shipping
+    const restaurantLocation = cart[0]?.restaurantLocation;
+    const userLocation = user?.location;
+
+    let deliveryFee = 15000; // default
+    let distance = 0;
+
+    if (userLocation && restaurantLocation) {
+        distance = calculateDistance(
+            userLocation.lat, userLocation.lng,
+            restaurantLocation.lat, restaurantLocation.lng
+        );
+        deliveryFee = calculateShippingCost(distance);
+    }
+
+    // Free delivery promo logic
+    if (cartTotal > 150000 || (appliedOffer?.code === 'FREEDEL')) {
+        deliveryFee = 0;
+    }
+
     const grandTotal = Math.max(0, cartTotal + tax + deliveryFee - discountAmount);
 
     const handleApplyCoupon = (e) => {
@@ -186,8 +209,11 @@ const Cart = () => {
                                     <span>{formatCurrency(tax)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-600 font-medium">
-                                    <span>Biaya Pengiriman</span>
-                                    <span className={deliveryFee === 0 ? 'text-green-500 font-bold' : ''}>
+                                    <div className="flex flex-col">
+                                        <span>Biaya Pengiriman</span>
+                                        {distance > 0 && <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Jarak: {distance.toFixed(1)} KM</span>}
+                                    </div>
+                                    <span className={deliveryFee === 0 ? 'text-emerald-500 font-bold' : ''}>
                                         {deliveryFee === 0 ? 'GRATIS' : formatCurrency(deliveryFee)}
                                     </span>
                                 </div>

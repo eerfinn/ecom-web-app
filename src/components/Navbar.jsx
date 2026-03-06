@@ -48,6 +48,13 @@ const Navbar = () => {
                         </Link>
                     )}
 
+                    {user?.role === 'DRIVER' && (
+                        <Link to="/driver-dashboard" className="px-6 py-3 bg-emerald-600 text-white font-black rounded-2xl shadow-lg hover:bg-emerald-700 transition-all text-sm tracking-wide flex items-center space-x-2">
+                            <ShieldCheck size={18} />
+                            <span>Driver Panel</span>
+                        </Link>
+                    )}
+
                     {user?.role === 'ADMIN' && (
                         <Link to="/admin" className="px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:bg-indigo-700 transition-all text-sm tracking-wide flex items-center space-x-2">
                             <ShieldCheck size={18} />

@@ -17,6 +17,7 @@ import RestaurantDashboard from './pages/RestaurantDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
+import DriverDashboard from './pages/DriverDashboard';
 
 function App() {
   return (
@@ -86,6 +87,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/driver-dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['DRIVER']}>
+                    <DriverDashboard />
                   </ProtectedRoute>
                 }
               />
